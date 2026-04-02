@@ -78,8 +78,9 @@ public class Projectile : MonoBehaviour
     {
         PlayerStatus status = other.GetComponentInParent<PlayerStatus>();
         if (status == null) return;
-
-        status.TakeDamage(damage);
+        
+        Vector3 hitPoint = other.ClosestPoint(transform.position);
+        status.TakeDamage(damage, hitPoint);
         Hit();
     }
 

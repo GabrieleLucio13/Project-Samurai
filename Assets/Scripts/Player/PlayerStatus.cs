@@ -5,6 +5,11 @@ public class PlayerStatus : MonoBehaviour
 {
     [Header("HP")]
     public float maxHealth = 100f;
+    
+    [Header("HIT")]
+    [SerializeField] private AudioSource hitSFX;
+    [SerializeField] private GameObject sparksPrefab;
+    [SerializeField] private float destroyDelay = 1f;
 
     [Header("Stamina")]
     public float maxStamina = 100f;
@@ -19,10 +24,14 @@ public class PlayerStatus : MonoBehaviour
     private float regenTimer;
     private bool regenBlock;
     public int currentShuriken;
+    
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
     public event Action<int, int> OnShurikenChanged;
+    public event Action OnDeath;
+    
     public bool IsDead = false;
+
     void Start()
     {
         health = maxHealth;
@@ -31,32 +40,49 @@ public class PlayerStatus : MonoBehaviour
 
         NotifyAll();
     }
+
     void NotifyAll()
     {
         OnHealthChanged?.Invoke(health, maxHealth);
         OnStaminaChanged?.Invoke(stamina, maxStamina);
         OnShurikenChanged?.Invoke(currentShuriken, maxShuriken);
     }
+
     void Update()
     {
         HandleStaminaRegen();
     }
+
     public void heal()
     {
        if (IsDead) return; 
     }
-    public void TakeDamage(float value)
+
+    public void TakeDamage(float value, Vector3 hitPoint)
     {
         if (IsDead) return;
 
         health = Mathf.Clamp(health - value, 0, maxHealth);
         OnHealthChanged?.Invoke(health, maxHealth);
+        SpawnSparks(hitPoint);
+        hitSFX.Play();
 
-        if (health <= 0)
-        {
-            IsDead = true;
-        }
+        if (health <= 0) HandleDeath();
     }
+
+    private void SpawnSparks(Vector3 hitPoint)
+    {
+        GameObject sparks = Instantiate(sparksPrefab, hitPoint, Quaternion.identity);
+        Destroy(sparks, destroyDelay);
+    }
+
+    private void HandleDeath()
+    {
+        IsDead = true;
+        OnDeath?.Invoke();
+
+    }
+
     public bool TryUseStamina(float value)
     {
         if (stamina < value)
@@ -68,6 +94,7 @@ public class PlayerStatus : MonoBehaviour
         OnStaminaChanged?.Invoke(stamina, maxStamina);
         return true;
     }
+
     public bool TryUseShuriken()
     {
         if (currentShuriken <= 0)
@@ -78,6 +105,7 @@ public class PlayerStatus : MonoBehaviour
         
         return true;
     }
+
     private void HandleStaminaRegen()
     {
         if (stamina >= maxStamina || regenBlock)
@@ -94,10 +122,9 @@ public class PlayerStatus : MonoBehaviour
 
         OnStaminaChanged?.Invoke(stamina, maxStamina);
     }
+
     public void SetRegenBlocked(bool value)
     {
         regenBlock = value;
     }
-
-    
 }

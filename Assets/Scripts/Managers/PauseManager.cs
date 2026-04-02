@@ -9,6 +9,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject firstAudioSlider;
     [SerializeField] private GameObject playerHUD;
     [SerializeField] private InputManager inputManager;
+    [SerializeField] private DeathManager deathManager;
 
     private bool _isPaused;
 

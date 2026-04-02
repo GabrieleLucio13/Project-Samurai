@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float runSpeed = 13f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float runStaminaCost = 1f;
+    [SerializeField] private AudioSource runningSFX;
+    [SerializeField] private AudioSource dodgeSFX;
+    [SerializeField] private AudioSource jumpSFX;
+
 
     [Header("Salto")]
     [SerializeField] private float jumpForce = 10f;
@@ -28,6 +32,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float attackStaminaCost = 10f;
     [SerializeField] private float shurikenCooldown = 0.6f;
     [SerializeField] private float combatExitDelay = 3f;
+    [SerializeField] private AudioSource slashSFX;
 
     [Header("Riferimenti")]
     [SerializeField] private Animator animator;
@@ -256,7 +261,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (!_isGrounded)
         {
-            finalMovement = _airVelocity; 
+            finalMovement = _airVelocity;  
         }
         else
         {
@@ -271,8 +276,32 @@ public class PlayerController : MonoBehaviour
             finalMovement = _movement * (_canRun ? runSpeed : moveSpeed);
         }
 
+        if (_canRun)
+        {
+            PlaySFX(runningSFX);
+        } else
+        {
+            StopRunningSFX(runningSFX);
+        }
+
         finalMovement.y = _verticalVelocity;
         _controller.Move(finalMovement * Time.fixedDeltaTime);
+    }
+
+    private void PlaySFX(AudioSource SFX)
+    {
+        if (SFX != null && !SFX.isPlaying)
+        {
+            SFX.Play();
+        }
+    }
+
+    private void StopRunningSFX(AudioSource SFX)
+    {
+        if (SFX != null && SFX.isPlaying)
+        {
+            SFX.Stop();
+        }
     }
     
     //ATTACCO
@@ -298,6 +327,7 @@ public class PlayerController : MonoBehaviour
 
         animator.SetInteger("ComboIndex", _currentCombo);
         animator.SetTrigger("Attack");
+        PlaySFX(slashSFX);
 
     }
     private void EndAttack()
@@ -418,6 +448,7 @@ public class PlayerController : MonoBehaviour
 
         _dodgeCooldownTimer = dodgeCooldown;
         animator.SetBool("IsDodging", _isDodging);
+        PlaySFX(dodgeSFX);
     }
     public void SetInvulnerable(bool value)
     {
@@ -460,7 +491,7 @@ public class PlayerController : MonoBehaviour
 
         coyoteTimer = 0f;
         _jumpCooldownTimer = jumpCooldown;
- 
+        PlaySFX(jumpSFX);
     }
     
     //RINFODERO

@@ -22,8 +22,9 @@ public class EnemyCollider : MonoBehaviour
         PlayerStatus status = other.GetComponentInParent<PlayerStatus>();
         if (status != null)
         {
-            Debug.Log("[EnemyAttack] Player colpito!");
-            status.TakeDamage(damage);
+            Vector3 hitPoint = other.ClosestPoint(transform.position);
+            
+            status.TakeDamage(damage, hitPoint);
             hasHit = true;
             enemyOwner?.OnAttackHit();
         }

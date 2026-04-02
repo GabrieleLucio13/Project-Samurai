@@ -1,10 +1,19 @@
 using UnityEngine;
 using UnityEngine.Audio;
-
+using UnityEngine.UI;
 public class AudioManager : MonoBehaviour
 {
     [SerializeField] private AudioMixer audioMixer;
-    [SerializeField] private AudioSource musicSource;
+    
+    [Header("UI Sliders")]
+    [SerializeField] private Slider masterSlider;
+    [SerializeField] private Slider ambientSlider;
+    [SerializeField] private Slider sfxSlider;
+    
+    [Header("Default Volumes")]
+    [SerializeField] private float defaultMasterVolume = 1f;
+    [SerializeField] private float defaultAmbientVolume = 1f;
+    [SerializeField] private float defaultSFXVolume = 1f;
 
     const string MASTER_KEY = "MasterVolume";
     const string AMBIENT_KEY = "AmbientVolume";
@@ -12,6 +21,7 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+        SyncSliders();
         LoadVolumes();
     }
 
@@ -35,22 +45,19 @@ public class AudioManager : MonoBehaviour
 
     void LoadVolumes()
     {
-        SetMasterVolume(PlayerPrefs.GetFloat(MASTER_KEY, 1f));
-        SetAmbientVolume(PlayerPrefs.GetFloat(AMBIENT_KEY, 1f));
-        SetSFXVolume(PlayerPrefs.GetFloat(SFX_KEY, 1f));
+        SetMasterVolume(PlayerPrefs.GetFloat(MASTER_KEY, defaultMasterVolume));
+        SetAmbientVolume(PlayerPrefs.GetFloat(AMBIENT_KEY, defaultAmbientVolume));
+        SetSFXVolume(PlayerPrefs.GetFloat(SFX_KEY, defaultSFXVolume));
     }
 
-    public void PlayMusic(AudioClip clip)
+        private void SyncSliders()
     {
-        if (musicSource.clip == clip) return;
-
-        musicSource.clip = clip;
-        musicSource.Play();
-    }
-
-    public void StopMusic()
-    {
-        musicSource.Stop();
+        if (masterSlider != null)
+            masterSlider.value = PlayerPrefs.GetFloat(MASTER_KEY, defaultMasterVolume);
+        if (ambientSlider != null)
+            ambientSlider.value = PlayerPrefs.GetFloat(AMBIENT_KEY, defaultAmbientVolume);
+        if (sfxSlider != null)
+            sfxSlider.value = PlayerPrefs.GetFloat(SFX_KEY, defaultSFXVolume);
     }
 
 }
